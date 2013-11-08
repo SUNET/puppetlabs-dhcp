@@ -1,10 +1,15 @@
 define dhcp::host (
   $ip,
   $mac,
-  $comment=''
+  $comment='',
+  $hostname=''
 ) {
 
-  $host = $name
+  $host = $hostname ? {
+    ''      => $name,
+    default => $hostname,
+  }
+
   include dhcp::params
 
   $dhcp_dir = $dhcp::params::dhcp_dir
