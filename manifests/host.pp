@@ -1,14 +1,15 @@
+# == Define: dhcp::host
+#
 define dhcp::host (
   $ip,
   $mac,
-  $comment='',
-  $hostname=''
+  $options = {},
+  $comment=''
 ) {
 
-  $host = $hostname ? {
-    ''      => $name,
-    default => $hostname,
-  }
+  validate_hash($options)
+
+  $host = $name
 
   include dhcp::params
 
@@ -17,7 +18,6 @@ define dhcp::host (
   concat::fragment { "dhcp_host_${name}":
     target  => "${dhcp_dir}/dhcpd.hosts",
     content => template('dhcp/dhcpd.host.erb'),
-    order   => 10,
+    order   => '10',
   }
 }
-
