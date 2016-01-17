@@ -1,7 +1,8 @@
-host <%= @host %> {
+host <%= @name %> {
   hardware ethernet   <%= @mac.upcase %>;
   fixed-address       <%= @ip %>;
-  ddns-hostname       "<%= @name %>";
+  option host-name    "<%= @host %>";
+  ddns-hostname       "<%= @host %>";
 <% if not @options.empty? -%>
 <% @options.keys.sort.each do |option| -%>
   option <%= option %> <%= @options[option] %>;
