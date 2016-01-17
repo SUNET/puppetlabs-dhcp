@@ -4,12 +4,16 @@ define dhcp::host (
   $ip,
   $mac,
   $options = {},
-  $comment=''
+  $comment='',
+  $hostname='',
 ) {
 
   validate_hash($options)
 
-  $host = $name
+  $host = $hostname ? {
+    ''      => $name,
+    default => $hostname,
+  }
 
   include dhcp::params
 
