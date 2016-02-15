@@ -93,22 +93,22 @@ class dhcp (
   concat::fragment { 'dhcp-conf-header':
     target  => "${dhcp_dir}/dhcpd.conf",
     content => $dhcp_conf_header_real,
-    order   => 01,
+    order   => '01',
   }
   concat::fragment { 'dhcp-conf-ddns':
     target  => "${dhcp_dir}/dhcpd.conf",
     content => $dhcp_conf_ddns_real,
-    order   => 10,
+    order   => '10',
   }
   concat::fragment { 'dhcp-conf-pxe':
     target  => "${dhcp_dir}/dhcpd.conf",
     content => $dhcp_conf_pxe_real,
-    order   => 20,
+    order   => '20',
   }
   concat::fragment { 'dhcp-conf-extra':
     target  => "${dhcp_dir}/dhcpd.conf",
     content => $dhcp_conf_extra_real,
-    order   => 99,
+    order   => '99',
   }
 
   # Any additional dhcpd.conf fragments the user passed in as a hash for
@@ -120,7 +120,7 @@ class dhcp (
   # $fragment_defaults = {
   #   content => "# Managed by Puppet\n",
   #   target  => "${dhcp_dir}/dhcpd.conf",
-  #   order   => 80,
+  #   order   => '80',
   # }
   create_resources('concat::fragment', $dhcp_conf_fragments)
 
@@ -129,7 +129,7 @@ class dhcp (
   concat::fragment { 'dhcp-pools-header':
     target  => "${dhcp_dir}/dhcpd.pools",
     content => "# DHCP Pools\n",
-    order   => 01,
+    order   => '01',
   }
 
   # dhcpd.hosts
@@ -137,7 +137,7 @@ class dhcp (
   concat::fragment { 'dhcp-hosts-header':
     target  => "${dhcp_dir}/dhcpd.hosts",
     content => "# static DHCP hosts\n",
-    order   => 01,
+    order   => '01',
   }
 
   service { $servicename:
