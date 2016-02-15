@@ -85,7 +85,7 @@ class dhcp (
     }
   }
 
-  include concat::setup
+  #include concat
   Concat { require => Package[$packagename] }
 
   # dhcpd.conf
