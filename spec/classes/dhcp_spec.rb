@@ -58,6 +58,43 @@ describe 'dhcp', :type => :class do
       end
     end
 
+    context 'header' do
+      let :params do
+        default_params.merge({
+          :interfaces => ['eth0'],
+        })
+      end
+
+      it 'defines dhcp header contents' do
+        verify_concat_fragment_exact_contents(subject, 'dhcp-conf-header', [
+          'authoritative;',
+          'default-lease-time 3600;',
+          'max-lease-time 86400;',
+          'log-facility daemon;',
+          'option domain-name "sampledomain.com";',
+          'option domain-name-servers 1.1.1.1;',
+          'option fqdn.no-client-update on;  # set the "O" and "S" flag bits',
+          'option fqdn.rcode2 255;',
+          'option pxegrub code 150 = text;',
+        ])
+      end
+
+      context 'omapi_port => 7911' do
+        let :params do
+          default_params.merge({
+            :interfaces => ['eth0'],
+            :omapi_port => 7911,
+          })
+        end
+
+        it 'defines dhcp header contents' do
+          verify_concat_fragment_contents(subject, 'dhcp-conf-header', [
+            'omapi-port 7911;',
+          ])
+        end
+      end
+    end
+
     context 'ntp' do
       let :params do
         default_params.merge({
@@ -138,7 +175,7 @@ describe 'dhcp', :type => :class do
       end
     end
   end
-  context 'on a Dawin OS' do
+  context 'on a Darwin OS' do
     let :facts do
       {
         :osfamily               => 'Darwin',
@@ -233,6 +270,43 @@ describe 'dhcp', :type => :class do
       end
       it { should contain_concat__fragment('dhcp-conf-header').with_content %r{^option root-path "/opt/ltsp/i386";$} }
       it { should contain_concat__fragment('dhcp-conf-header').with_content %r{^option tftp-server-name "1.2.3.4";$} }
+    end
+  end
+
+  context 'pxeserver defined' do
+    let :params do
+      default_params.merge({
+        :pxeserver   => '1.2.3.4',
+        :pxefilename => 'pxelinux.0',
+      })
+    end
+
+    it do
+      content = subject.resource('concat::fragment', 'dhcp-conf-pxe').send(:parameters)[:content]
+      expected_lines = [ 'filename "pxelinux.0"', 'next-server 1.2.3.4' ]
+      expect(content.split("\n").reject {|l| l =~ /^#|^$/ }).to eq(expected_lines)
+    end
+
+    context 'ipxefilename defined' do
+      let :params do
+        default_params.merge({
+          :ipxe_filename  => 'undionly-20140116.kpxe',
+          :ipxe_bootstrap => 'bootstrap.kpxe',
+        })
+      end
+
+      it do
+        content = subject.resource('concat::fragment', 'dhcp-conf-pxe').send(:parameters)[:content]
+        expected_lines = [
+          'if exists user-class and option user-class = "iPXE" {',
+          'filename "bootstrap.kpxe";',
+          '} else {',
+          'filename "undionly-20140116.kpxe";',
+          '}',
+          'next-server 1.2.3.4',
+        ]
+        expect(content.split("\n").reject {|l| l =~ /^#|^$/ }).to eq(expected_lines)
+      end
     end
   end
 

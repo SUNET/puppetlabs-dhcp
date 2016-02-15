@@ -24,6 +24,7 @@ Define the server and the zones it will be responsible for.
       require      => Bind::Key['rndc-key'],
       pxeserver    => '10.0.1.50',
       pxefilename  => 'pxelinux.0',
+      omapi_port   => 7911,
     }
 
 ### dhcp::pool
@@ -54,8 +55,21 @@ Create host reservations.
       ip  => '10.0.1.51',
     }
 
+### parameters
+Parameters are available to configure pxe or ipxe
+
+Boot ipxe from pxe. When configured this overrides pxefilename.
+For more information see [ipxe.org](http://ipxe.org/howto/chainloading).
+
+    class { 'dhcp':
+      ipxe_filename  => 'undionly.kpxe',
+      ipxe_bootstrap => 'bootstrap.kpxe',
+      pxeserver      => '10.0.1.50',
+    }
+
 ## Contributors
 Zach Leslie <zach.leslie@gmail.com>
 Ben Hughes <git@mumble.org.uk>
 Sam Dunster <sdunster@uow.edu.au>
 Garrett Honeycutt <gh@learnpuppet.com>
+Matt Kirby <mk.kirby@gmail.com>

@@ -16,11 +16,15 @@ class dhcp (
   $dnskeyname          = undef,
   $pxeserver           = undef,
   $pxefilename         = undef,
+  $ipxe_filename       = undef,
+  $ipxe_bootstrap      = undef,
   $logfacility         = 'daemon',
   $default_lease_time  = 3600,
   $max_lease_time      = 86400,
   $service_ensure      = running,
   $globaloptions       = '',
+  $omapi_port          = undef,
+  $extra_config        = '',
 ) {
 
   if $dnsdomain == undef {
@@ -36,6 +40,18 @@ class dhcp (
 
   validate_array($nameservers)
   validate_array($ntpservers)
+
+  if $pxeserver or $pxefilename {
+    if ! $pxeserver or ! $pxefilename {
+      fail( '$pxeserver and $pxefilename are required when enabling pxe' )
+    }
+  }
+
+  if $ipxe_filename or $ipxe_bootstrap {
+    if ! $ipxe_filename or ! $ipxe_bootstrap {
+      fail( '$ipxe_filename and $ipxe_bootstrap are required when enabling ipxe' )
+    }
+  }
 
   include dhcp::params
   include dhcp::monitor
@@ -199,7 +215,7 @@ class dhcp (
     ensure    => $service_ensure,
     enable    => true,
     hasstatus => true,
-    subscribe => [Concat["${dhcp_dir}/dhcpd.pools"], Concat["${dhcp_dir}/dhcpd.hosts"], File["${dhcp_dir}/dhcpd.conf"]],
+    subscribe => [Concat["${dhcp_dir}/dhcpd.pools"], Concat["${dhcp_dir}/dhcpd.hosts"], Concat["${dhcp_dir}/dhcpd.conf"]],
     require   => Package[$packagename],
   }
 }
